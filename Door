@@ -1,0 +1,47 @@
+using UnityEngine;
+
+public class Door : Interactible
+{
+    // Smoothly open a door
+    public AnimationCurve openSpeedCurve = new AnimationCurve(new Keyframe[] { new Keyframe(0, 1, 0, 0), new Keyframe(0.8f, 1, 0, 0), new Keyframe(1, 0, 0, 0) }); //Contols the open speed at a specific time (ex. the door opens fast at the start then slows down at the end)
+    public float openSpeedMultiplier = 2.0f; //Increasing this value will make the door open faster
+    public float doorOpenAngle = 90.0f; //Global door open speed that will multiply the openSpeedCurve
+
+    float defaultRotationAngle;
+    float currentRotationAngle;
+    float openTime = 0f;
+
+    bool isOpen;
+    public bool isLocked;
+    public string keyName;
+    public AudioSource audiosource;
+    public GameObject door;
+    public GameObject handle;
+
+    // Start is called once before the first execution of Update after the MonoBehaviour is created
+    void Start()
+    {
+        defaultRotationAngle = door.transform.localEulerAngles.y;
+        currentRotationAngle = door.transform.localEulerAngles.y;
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+        if (openTime < 1)
+        {
+            openTime += Time.deltaTime * openSpeedMultiplier * openSpeedCurve.Evaluate(openTime);
+        }
+        door.transform.localEulerAngles = new Vector3(door.transform.localEulerAngles.x, Mathf.LerpAngle(currentRotationAngle, defaultRotationAngle + (isOpen ? doorOpenAngle : 0), openTime), door.transform.localEulerAngles.z);
+    }
+
+    public override void Interact()
+    {
+        isOpen = !isOpen;
+        currentRotationAngle = door.transform.localEulerAngles.y;
+        openTime = 0;
+        //audiosource.Play();
+        
+    }
+
+}
